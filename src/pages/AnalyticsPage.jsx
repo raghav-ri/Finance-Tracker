@@ -12,7 +12,7 @@ const COLORS = {
 
 const CAT_COLORS = ['#6C63FF','#F87171','#4ADE80','#FBBF24','#4ECDC4','#F97316','#A78BFA','#34D399'];
 
-// Custom dark tooltip
+
 const DarkTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -31,19 +31,19 @@ const DarkTooltip = ({ active, payload, label }) => {
 };
 
 const AnalyticsPage = ({ transactions }) => {
-  // ── Totals ──
+ 
   const totalIncome  = transactions.filter(t => t.type === 'income').reduce((a, b) => a + Number(b.amount), 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((a, b) => a + Number(b.amount), 0);
   const balance      = totalIncome - totalExpense;
   const savingsRate  = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 100) : 0;
 
-  // ── Donut chart: Income vs Expense ──
+ 
   const overviewData = [
     { name: 'Income',  value: totalIncome  },
     { name: 'Expense', value: totalExpense },
   ];
 
-  // ── Bar chart: by category ──
+ 
   const categoryMap = {};
   transactions.forEach(t => {
     const cat = t.category || 'Uncategorized';
@@ -52,7 +52,7 @@ const AnalyticsPage = ({ transactions }) => {
   });
   const categoryData = Object.entries(categoryMap).map(([name, vals]) => ({ name, ...vals }));
 
-  // ── Line chart: over time (by date) ──
+  
   const dateMap = {};
   transactions.forEach(t => {
     if (!t.date) return;
@@ -65,7 +65,7 @@ const AnalyticsPage = ({ transactions }) => {
     balance: d.income - d.expense,
   }));
 
-  // ── Expense breakdown by category (pie) ──
+ 
   const expCatMap = {};
   transactions.filter(t => t.type === 'expense').forEach(t => {
     const cat = t.category || 'Uncategorized';
@@ -88,7 +88,7 @@ const AnalyticsPage = ({ transactions }) => {
         <p className="page-subtitle">Visual breakdown of your financial activity</p>
       </div>
 
-      {/* Top stat chips */}
+      {}
       <div className="stat-chips-row">
         <StatChip label="Total Income"  value={`₹${totalIncome.toLocaleString()}`}  color={COLORS.income}  />
         <StatChip label="Total Expense" value={`₹${totalExpense.toLocaleString()}`} color={COLORS.expense} />
@@ -96,9 +96,9 @@ const AnalyticsPage = ({ transactions }) => {
         <StatChip label="Savings Rate"  value={`${savingsRate}%`}                   color="#A78BFA"        />
       </div>
 
-      {/* Row 1: Overview donut + Monthly line */}
+      {}
       <div className="analytics-grid-2">
-        {/* Donut */}
+        {}
         <div className="card chart-card">
           <p className="chart-label">Income vs Expenses</p>
           {transactions.length === 0 ? (
@@ -119,7 +119,7 @@ const AnalyticsPage = ({ transactions }) => {
           )}
         </div>
 
-        {/* Line chart */}
+        {}
         <div className="card chart-card">
           <p className="chart-label">Monthly Trend</p>
           {timeData.length === 0 ? (
@@ -149,9 +149,9 @@ const AnalyticsPage = ({ transactions }) => {
         </div>
       </div>
 
-      {/* Row 2: Category bar + Expense pie */}
+      {}
       <div className="analytics-grid-2" style={{ marginTop: '20px' }}>
-        {/* Bar by category */}
+        {}
         <div className="card chart-card">
           <p className="chart-label">Spending by Category</p>
           {categoryData.length === 0 ? (
@@ -170,7 +170,7 @@ const AnalyticsPage = ({ transactions }) => {
           )}
         </div>
 
-        {/* Expense breakdown pie */}
+        {}
         <div className="card chart-card">
           <p className="chart-label">Expense Breakdown</p>
           {expCatData.length === 0 ? (

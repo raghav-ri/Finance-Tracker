@@ -10,10 +10,10 @@ const TransactionList = ({ transactions, onDelete, onEdit }) => (
       </div>
     )}
 
-    {/* Same map logic as original */}
+    {}
     {transactions.map(tx => (
       <div key={tx.id} className={`tx-item ${tx.type}`}>
-        {/* Left: category icon + info */}
+        {}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
           <div style={{
             width: '42px', height: '42px', borderRadius: '12px', flexShrink: 0,
@@ -30,7 +30,7 @@ const TransactionList = ({ transactions, onDelete, onEdit }) => (
           </div>
         </div>
 
-        {/* Right: amount + actions — same onEdit / onDelete calls */}
+        {}
         <div className="tx-right">
           <span className="amount">
             {tx.type === 'income' ? '+' : '-'}₹{Number(tx.amount).toLocaleString()}

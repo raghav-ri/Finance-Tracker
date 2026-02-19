@@ -30,12 +30,12 @@ const Navbar = ({ activePage, setActivePage, user }) => {
 
   return (
     <nav className="navbar">
-      {/* Logo */}
+      {}
       <div className="navbar-logo" onClick={() => setActivePage('dashboard')} style={{ cursor: 'pointer' }}>
         Fin<span>Track</span>
       </div>
 
-      {/* Desktop Nav Links */}
+      {}
       <div className="navbar-links">
         {NAV_ITEMS.map(item => (
           <button
@@ -49,7 +49,7 @@ const Navbar = ({ activePage, setActivePage, user }) => {
         ))}
       </div>
 
-      {/* Right controls */}
+      {}
       <div className="navbar-right">
         <button
           className="theme-toggle-btn"
@@ -59,7 +59,7 @@ const Navbar = ({ activePage, setActivePage, user }) => {
           {isDark ? '☀️' : '🌙'}
         </button>
 
-        {/* Profile dropdown */}
+        {}
         <div className="nav-profile" onClick={(e) => { e.stopPropagation(); setProfileOpen(o => !o); }}>
           {user?.photoURL
             ? <img src={user.photoURL} alt="avatar" className="nav-avatar-img" />

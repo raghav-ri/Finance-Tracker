@@ -6,18 +6,21 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionList from '../components/TransactionList';
 import Analytics from '../components/Analytics';
 
-// Dashboard receives transactions from App (single Firestore listener)
-const Dashboard = ({ transactions, setActivePage }) => {
+
+const Dashboard = ({ transactions, setActivePage, user }) => {
   const [editingTx, setEditingTx] = useState(null);
   const [search, setSearch]       = useState('');
 
-  // ── Same Firebase write logic ──
   const handleAddOrUpdate = async (data) => {
     if (editingTx) {
       await updateDoc(doc(db, 'transactions', editingTx.id), data);
       setEditingTx(null);
     } else {
-      await addDoc(collection(db, 'transactions'), data);
+      // ✅ Save userId so each transaction belongs to the logged-in user
+      await addDoc(collection(db, 'transactions'), {
+        ...data,
+        userId: user.uid,
+      });
     }
   };
 
@@ -26,10 +29,8 @@ const Dashboard = ({ transactions, setActivePage }) => {
     t.category?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Recent 5 for quick view
   const recent = filtered.slice(0, 5);
 
-  // Stats
   const totalIncome  = transactions.filter(t => t.type === 'income').reduce((a, b) => a + Number(b.amount), 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((a, b) => a + Number(b.amount), 0);
 
@@ -43,20 +44,15 @@ const Dashboard = ({ transactions, setActivePage }) => {
         </div>
       </div>
 
-      {/* Summary Cards */}
       <SummaryCards transactions={transactions} />
 
-      {/* Main grid */}
       <div className="dashboard-grid">
-        {/* Sidebar: form + mini donut */}
         <aside className="sidebar">
           <TransactionForm onSubmit={handleAddOrUpdate} editData={editingTx} />
           <Analytics transactions={transactions} />
         </aside>
 
-        {/* Main: quick stats + recent transactions */}
         <main className="content">
-          {/* Quick stats row */}
           <div className="quick-stats-row">
             <div className="quick-stat-card card">
               <span className="quick-stat-icon" style={{ background: 'rgba(74,222,128,0.12)', color: '#4ADE80' }}>📈</span>
@@ -83,7 +79,6 @@ const Dashboard = ({ transactions, setActivePage }) => {
             </div>
           </div>
 
-          {/* Search */}
           <div className="search-wrapper card" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: 'var(--text-muted)' }}>🔍</span>
             <input
@@ -99,7 +94,6 @@ const Dashboard = ({ transactions, setActivePage }) => {
             )}
           </div>
 
-          {/* Recent transactions header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.3rem' }}>
               Recent Transactions
@@ -117,7 +111,6 @@ const Dashboard = ({ transactions, setActivePage }) => {
             )}
           </div>
 
-          {/* Transaction List — same onDelete / onEdit */}
           <TransactionList
             transactions={recent}
             onDelete={(id) => deleteDoc(doc(db, 'transactions', id))}

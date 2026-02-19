@@ -4,7 +4,7 @@ import TransactionForm from '../components/TransactionForm';
 import { db } from '../firebase/config';
 import { deleteDoc, doc, addDoc, collection, updateDoc } from 'firebase/firestore';
 
-const TransactionsPage = ({ transactions }) => {
+const TransactionsPage = ({ transactions, user }) => {
   const [search, setSearch]         = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterCat, setFilterCat]   = useState('all');
@@ -12,10 +12,8 @@ const TransactionsPage = ({ transactions }) => {
   const [editingTx, setEditingTx]   = useState(null);
   const [showForm, setShowForm]     = useState(false);
 
-  // ── All unique categories ──
   const categories = [...new Set(transactions.map(t => t.category).filter(Boolean))];
 
-  // ── Filter + Search ──
   const filtered = transactions
     .filter(t => {
       const matchSearch = t.title?.toLowerCase().includes(search.toLowerCase())
@@ -32,13 +30,16 @@ const TransactionsPage = ({ transactions }) => {
       return 0;
     });
 
-  // ── Same Firebase handlers ──
   const handleAddOrUpdate = async (data) => {
     if (editingTx) {
       await updateDoc(doc(db, 'transactions', editingTx.id), data);
       setEditingTx(null);
     } else {
-      await addDoc(collection(db, 'transactions'), data);
+      // ✅ Save userId so each transaction belongs to the logged-in user
+      await addDoc(collection(db, 'transactions'), {
+        ...data,
+        userId: user.uid,
+      });
     }
     setShowForm(false);
   };
@@ -48,7 +49,6 @@ const TransactionsPage = ({ transactions }) => {
 
   return (
     <div className="container">
-      {/* Page header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Transactions</h1>
@@ -60,16 +60,13 @@ const TransactionsPage = ({ transactions }) => {
         </button>
       </div>
 
-      {/* Inline form (toggle) */}
       {showForm && (
         <div style={{ marginBottom: '24px', maxWidth: '480px' }}>
           <TransactionForm onSubmit={handleAddOrUpdate} editData={editingTx} />
         </div>
       )}
 
-      {/* Filter bar */}
       <div className="filter-bar card">
-        {/* Search */}
         <div className="filter-search-wrap">
           <span style={{ color: 'var(--text-muted)' }}>🔍</span>
           <input
@@ -84,7 +81,6 @@ const TransactionsPage = ({ transactions }) => {
           )}
         </div>
 
-        {/* Type chips */}
         <div className="filter-chips">
           {['all', 'income', 'expense'].map(t => (
             <button key={t}
@@ -96,7 +92,6 @@ const TransactionsPage = ({ transactions }) => {
           ))}
         </div>
 
-        {/* Category select */}
         <select
           className="filter-select"
           value={filterCat}
@@ -106,7 +101,6 @@ const TransactionsPage = ({ transactions }) => {
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
 
-        {/* Sort */}
         <select
           className="filter-select"
           value={sortBy}
@@ -119,7 +113,6 @@ const TransactionsPage = ({ transactions }) => {
         </select>
       </div>
 
-      {/* List */}
       <TransactionList transactions={filtered} onDelete={handleDelete} onEdit={handleEdit} />
     </div>
   );

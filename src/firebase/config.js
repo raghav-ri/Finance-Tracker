@@ -1,9 +1,3 @@
-// firebase/config.js
-// ─────────────────────────────────────────────────────────────
-// Replace the values below with your own Firebase project config.
-// Firebase Console → Project Settings → Your Apps → SDK setup
-// ─────────────────────────────────────────────────────────────
-
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';

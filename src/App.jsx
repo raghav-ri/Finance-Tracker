@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from './firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 
 import Navbar          from './components/Navbar';
 import LoginPage       from './pages/LoginPage';
@@ -10,31 +10,36 @@ import TransactionsPage from './pages/TransactionsPage';
 import AnalyticsPage   from './pages/AnalyticsPage';
 
 function App() {
-  const [user, setUser]               = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [user, setUser]                 = useState(null);
+  const [authLoading, setAuthLoading]   = useState(true);
   const [transactions, setTransactions] = useState([]);
-  const [activePage, setActivePage]   = useState('dashboard');
+  const [activePage, setActivePage]     = useState('dashboard');
 
-  // ── Firebase Auth listener ──
+  // Listen for auth state changes
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthLoading(false);
+      // Clear transactions when user logs out
+      if (!u) setTransactions([]);
     });
     return () => unsub();
   }, []);
 
-  // ── Single Firestore listener shared across all pages ──
+  // Fetch only the logged-in user's transactions
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'transactions'), orderBy('date', 'desc'));
+    const q = query(
+      collection(db, 'transactions'),
+      where('userId', '==', user.uid),   // ✅ Filter by current user
+      orderBy('date', 'desc')
+    );
     const unsub = onSnapshot(q, (snapshot) => {
       setTransactions(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsub();
   }, [user]);
 
-  // ── Loading splash ──
   if (authLoading) {
     return (
       <div style={{
@@ -47,17 +52,15 @@ function App() {
     );
   }
 
-  // ── Not logged in → Login page ──
   if (!user) return <LoginPage />;
 
-  // ── Logged in → App shell ──
   return (
     <div className="app-wrapper">
       <Navbar activePage={activePage} setActivePage={setActivePage} user={user} />
 
       <main>
-        {activePage === 'dashboard'    && <Dashboard     transactions={transactions} setActivePage={setActivePage} />}
-        {activePage === 'transactions' && <TransactionsPage transactions={transactions} />}
+        {activePage === 'dashboard'    && <Dashboard     transactions={transactions} setActivePage={setActivePage} user={user} />}
+        {activePage === 'transactions' && <TransactionsPage transactions={transactions} user={user} />}
         {activePage === 'analytics'    && <AnalyticsPage transactions={transactions} />}
       </main>
     </div>

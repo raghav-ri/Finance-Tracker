@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const Analytics = ({ transactions }) => {
-  // ── Same logic as original ──
+  
   const income = transactions
     .filter(t => t.type === 'income')
     .reduce((acc, t) => acc + Number(t.amount), 0);
@@ -17,7 +17,7 @@ const Analytics = ({ transactions }) => {
 
   const COLORS = ['#4ADE80', '#F87171'];
 
-  // Custom tooltip to match dark theme
+
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (

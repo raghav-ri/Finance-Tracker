@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const TransactionForm = ({ onSubmit, editData }) => {
-  // ── Same logic as original ──
+  
   const [form, setForm] = useState({ title: '', amount: '', category: '', date: '', type: 'expense' });
 
   useEffect(() => { if (editData) setForm(editData); }, [editData]);
@@ -16,7 +16,7 @@ const TransactionForm = ({ onSubmit, editData }) => {
     <form className="form-container" onSubmit={handleSubmit}>
       <h3>{editData ? '✏️ Edit' : '＋ Add'} Transaction</h3>
 
-      {/* Type toggle row */}
+      {}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
         <button
           type="button"
@@ -48,7 +48,7 @@ const TransactionForm = ({ onSubmit, editData }) => {
         </button>
       </div>
 
-      {/* Hidden select keeps original logic intact */}
+      {}
       <select
         value={form.type}
         onChange={e => setForm({ ...form, type: e.target.value })}

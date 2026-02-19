@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-/* ── Base Variables ── */
+
 :root {
   --bg-main: #0A0B0F;
   --card-bg: #111318;
@@ -18,7 +18,7 @@
   --radius-sm: 10px;
 }
 
-/* ── Light Theme ── */
+
 [data-theme='light'] {
   --bg-main: #F5F4F0;
   --card-bg: #FFFFFF;
@@ -30,7 +30,7 @@
   --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* ── Reset & Base ── */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -41,17 +41,17 @@ body {
   min-height: 100vh;
 }
 
-/* ── App Wrapper ── */
+
 .app-wrapper { min-height: 100vh; }
 
-/* ── Container ── */
+
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem 2rem 4rem;
 }
 
-/* ── Dashboard Grid ── */
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 360px 1fr;
@@ -64,7 +64,7 @@ body {
   .container { padding: 1rem 1rem 3rem; }
 }
 
-/* ── Card ── */
+
 .card {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -74,7 +74,7 @@ body {
   transition: border-color 0.2s;
 }
 
-/* ── Navbar ── */
+
 nav.card {
   border-radius: 0 !important;
   border-left: none;
@@ -130,7 +130,7 @@ nav.card .logo-text {
   justify-content: center;
 }
 
-/* ── Summary Cards ── */
+
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -178,7 +178,7 @@ nav.card .logo-text {
   line-height: 1;
 }
 
-/* ── Form Container ── */
+
 .form-container {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -237,7 +237,7 @@ nav.card .logo-text {
   box-shadow: 0 8px 24px rgba(201, 168, 76, 0.35);
 }
 
-/* ── Analytics Card ── */
+
 .analytics-card {
   margin-top: 20px !important;
 }
@@ -252,7 +252,6 @@ nav.card .logo-text {
   color: var(--text-muted);
 }
 
-/* ── Search Wrapper ── */
 .search-wrapper {
   padding: 12px 18px !important;
   border-radius: var(--radius-sm) !important;
@@ -270,7 +269,7 @@ nav.card .logo-text {
 
 .search-input::placeholder { color: var(--text-muted); }
 
-/* ── Transaction List ── */
+
 .transaction-list {
   display: flex;
   flex-direction: column;
@@ -356,7 +355,7 @@ nav.card .logo-text {
   color: var(--expense-color);
 }
 
-/* Recharts tooltip */
+
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   background: var(--card-bg) !important;
   border: 1px solid var(--border) !important;
@@ -364,9 +363,7 @@ nav.card .logo-text {
   color: var(--text-primary) !important;
 }
 
-/* ─────────────────────────────────────────────
-   NAVBAR (full rewrite)
-───────────────────────────────────────────── */
+
 .navbar {
   display: flex;
   align-items: center;
@@ -397,7 +394,7 @@ nav.card .logo-text {
 }
 .navbar-logo span { color: var(--text-primary); }
 
-/* Desktop nav links */
+
 .navbar-links {
   display: flex;
   align-items: center;
@@ -429,7 +426,7 @@ nav.card .logo-text {
 .nav-link.active .nav-link-icon { filter: none; }
 .nav-link-icon { font-size: 15px; }
 
-/* Right side */
+
 .navbar-right {
   display: flex;
   align-items: center;
@@ -455,7 +452,7 @@ nav.card .logo-text {
   border-color: var(--primary-color) !important;
 }
 
-/* Profile dropdown */
+
 .nav-profile {
   position: relative;
   display: flex;
@@ -596,9 +593,7 @@ nav.card .logo-text {
   .mobile-menu { display: flex; }
 }
 
-/* ─────────────────────────────────────────────
-   LOGIN PAGE
-───────────────────────────────────────────── */
+
 .login-page {
   min-height: 100vh;
   display: flex;
