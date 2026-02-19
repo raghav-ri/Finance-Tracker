@@ -11,6 +11,7 @@ const TransactionsPage = ({ transactions, user }) => {
   const [sortBy, setSortBy]         = useState('date-desc');
   const [editingTx, setEditingTx]   = useState(null);
   const [showForm, setShowForm]     = useState(false);
+  const [exportMsg, setExportMsg]   = useState('');
 
   const categories = [...new Set(transactions.map(t => t.category).filter(Boolean))];
 
@@ -35,7 +36,6 @@ const TransactionsPage = ({ transactions, user }) => {
       await updateDoc(doc(db, 'transactions', editingTx.id), data);
       setEditingTx(null);
     } else {
-      // ✅ Save userId so each transaction belongs to the logged-in user
       await addDoc(collection(db, 'transactions'), {
         ...data,
         userId: user.uid,
@@ -44,28 +44,78 @@ const TransactionsPage = ({ transactions, user }) => {
     setShowForm(false);
   };
 
-  const handleEdit = (tx) => { setEditingTx(tx); setShowForm(true); };
+  const handleEdit   = (tx) => { setEditingTx(tx); setShowForm(true); };
   const handleDelete = (id) => deleteDoc(doc(db, 'transactions', id));
+
+  // ── Export helpers ──────────────────────────────────────────────
+  const showToast = (msg) => {
+    setExportMsg(msg);
+    setTimeout(() => setExportMsg(''), 3000);
+  };
+
+  const exportCSV = () => {
+    if (!filtered.length) return showToast('No transactions to export.');
+    const header = ['Title', 'Type', 'Amount (₹)', 'Category', 'Date'];
+    const rows   = filtered.map(t => [
+      `"${t.title || ''}"`,
+      t.type,
+      t.amount,
+      `"${t.category || ''}"`,
+      t.date || '',
+    ]);
+    const csv  = [header, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `fintrack-transactions-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`✓ Exported ${filtered.length} transactions as CSV`);
+  };
+
+  const exportJSON = () => {
+    if (!filtered.length) return showToast('No transactions to export.');
+    const data = filtered.map(({ id, userId, ...rest }) => rest);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `fintrack-transactions-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`✓ Exported ${filtered.length} transactions as JSON`);
+  };
+
+  const totalIncome  = filtered.filter(t => t.type === 'income').reduce((a, b)  => a + Number(b.amount), 0);
+  const totalExpense = filtered.filter(t => t.type === 'expense').reduce((a, b) => a + Number(b.amount), 0);
 
   return (
     <div className="container">
+
+      {/* ── Page header ── */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Transactions</h1>
           <p className="page-subtitle">{filtered.length} of {transactions.length} records</p>
         </div>
-        <button className="btn-primary" style={{ padding: '12px 24px', borderRadius: '12px' }}
-          onClick={() => { setEditingTx(null); setShowForm(o => !o); }}>
+        <button
+          className="btn-primary"
+          style={{ padding: '12px 24px', borderRadius: '12px' }}
+          onClick={() => { setEditingTx(null); setShowForm(o => !o); }}
+        >
           {showForm ? '✕ Close' : '＋ Add New'}
         </button>
       </div>
 
+      {/* ── Add / Edit form ── */}
       {showForm && (
         <div style={{ marginBottom: '24px', maxWidth: '480px' }}>
           <TransactionForm onSubmit={handleAddOrUpdate} editData={editingTx} />
         </div>
       )}
 
+      {/* ── Filter bar ── */}
       <div className="filter-bar card">
         <div className="filter-search-wrap">
           <span style={{ color: 'var(--text-muted)' }}>🔍</span>
@@ -92,20 +142,12 @@ const TransactionsPage = ({ transactions, user }) => {
           ))}
         </div>
 
-        <select
-          className="filter-select"
-          value={filterCat}
-          onChange={e => setFilterCat(e.target.value)}
-        >
+        <select className="filter-select" value={filterCat} onChange={e => setFilterCat(e.target.value)}>
           <option value="all">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
 
-        <select
-          className="filter-select"
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value)}
-        >
+        <select className="filter-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
           <option value="date-desc">Newest First</option>
           <option value="date-asc">Oldest First</option>
           <option value="amount-desc">Highest Amount</option>
@@ -113,7 +155,56 @@ const TransactionsPage = ({ transactions, user }) => {
         </select>
       </div>
 
+      {/* ── Transaction list ── */}
       <TransactionList transactions={filtered} onDelete={handleDelete} onEdit={handleEdit} />
+
+      {/* ── Data Export Section ── */}
+      <div className="export-section card" style={{ marginTop: '32px' }}>
+        <div className="export-section-header">
+          <div>
+            <p className="export-section-label">📦 Data Export</p>
+            <p className="export-section-sub">
+              {filtered.length} filtered record{filtered.length !== 1 ? 's' : ''} &nbsp;·&nbsp;
+              <span style={{ color: 'var(--income-color)' }}>+₹{totalIncome.toLocaleString()}</span>
+              &nbsp;income &nbsp;·&nbsp;
+              <span style={{ color: 'var(--expense-color)' }}>−₹{totalExpense.toLocaleString()}</span>
+              &nbsp;expenses
+            </p>
+          </div>
+          <div className="export-buttons">
+            <button className="export-btn export-btn--csv" onClick={exportCSV}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export CSV
+            </button>
+            <button className="export-btn export-btn--json" onClick={exportJSON}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export JSON
+            </button>
+          </div>
+        </div>
+
+        <div className="export-format-info">
+          <div className="export-format-chip">
+            <span className="export-format-chip-dot" style={{ background: '#4ADE80' }} />
+            <span><strong>CSV</strong> — Open in Excel, Google Sheets, or any spreadsheet app</span>
+          </div>
+          <div className="export-format-chip">
+            <span className="export-format-chip-dot" style={{ background: '#C9A84C' }} />
+            <span><strong>JSON</strong> — For developers or importing into other apps</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Toast ── */}
+      {exportMsg && <div className="export-toast">{exportMsg}</div>}
     </div>
   );
 };

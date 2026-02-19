@@ -3,11 +3,12 @@ import { auth, db } from './firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 
-import Navbar          from './components/Navbar';
-import LoginPage       from './pages/LoginPage';
-import Dashboard       from './pages/Dashboard';
+import Navbar           from './components/Navbar';
+import Footer           from './components/Footer';
+import LoginPage        from './pages/LoginPage';
+import Dashboard        from './pages/Dashboard';
 import TransactionsPage from './pages/TransactionsPage';
-import AnalyticsPage   from './pages/AnalyticsPage';
+import AnalyticsPage    from './pages/AnalyticsPage';
 
 function App() {
   const [user, setUser]                 = useState(null);
@@ -20,7 +21,6 @@ function App() {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthLoading(false);
-      // Clear transactions when user logs out
       if (!u) setTransactions([]);
     });
     return () => unsub();
@@ -31,7 +31,7 @@ function App() {
     if (!user) return;
     const q = query(
       collection(db, 'transactions'),
-      where('userId', '==', user.uid),   // ✅ Filter by current user
+      where('userId', '==', user.uid),
       orderBy('date', 'desc')
     );
     const unsub = onSnapshot(q, (snapshot) => {
@@ -59,10 +59,12 @@ function App() {
       <Navbar activePage={activePage} setActivePage={setActivePage} user={user} />
 
       <main>
-        {activePage === 'dashboard'    && <Dashboard     transactions={transactions} setActivePage={setActivePage} user={user} />}
+        {activePage === 'dashboard'    && <Dashboard        transactions={transactions} setActivePage={setActivePage} user={user} />}
         {activePage === 'transactions' && <TransactionsPage transactions={transactions} user={user} />}
-        {activePage === 'analytics'    && <AnalyticsPage transactions={transactions} />}
+        {activePage === 'analytics'    && <AnalyticsPage    transactions={transactions} />}
       </main>
+
+      <Footer user={user} />
     </div>
   );
 }
